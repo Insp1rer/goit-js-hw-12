@@ -70,9 +70,16 @@ p {
   font-weight: 600;
 }
 
+.hidden {
+  display: none;
+}
+
 .container {
   max-width: 1600px;
   margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .overall-form {
@@ -121,6 +128,16 @@ p {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+
+.load-button {
+  width: 160px;
+  margin-top: 20px;
+}
+
+.hidden {
+  display: none;
+  opacity: 0;
 }
 
 .loader {

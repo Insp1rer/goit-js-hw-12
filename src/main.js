@@ -2,62 +2,114 @@
 
 import { getImages } from './js/pixabay-api';
 import { render } from './js/render-functions';
+import {
+  refs,
+  showLoadMoreButton,
+  hideLoadMoreButton,
+  showLoader,
+  hideLoader,
+  smoothScroll,
+} from './js/misc';
+
 import iziToast from 'izitoast';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import 'izitoast/dist/css/iziToast.min.css';
 
 //-------------------------------------------CONST&LISTENER-------------------------------------------\\
+let imagesLimitPerPage = 12;
+let currentPage = 0;
+// let overallPages = 0;
+let userInput;
 
-const form = document.querySelector('.overall-form');
-const gallery = document.querySelector('.gallery');
-form.addEventListener('submit', handleImageSearch);
+hideLoader();
+
+refs.form.addEventListener('submit', handleImageSearch);
+refs.loaderButton.addEventListener('click', handleLoadMore);
 
 //-------------------------------------------LOADER+INPUTCHECK-------------------------------------------\\
 
-function handleImageSearch(e) {
+async function handleImageSearch(e) {
   e.preventDefault();
-
-  gallery.innerHTML = `<div class="loader"></div>`;
-
-  const loader = document.querySelector('.loader');
-  const userInput = e.currentTarget.elements.searchImg.value.trim();
+  currentPage = 1;
+  refs.gallery.innerHTML = '';
+  showLoader();
+  userInput = e.currentTarget.elements.searchImg.value.trim();
 
   if (userInput.length === 0) {
-    iziToast.error({
+    iziToast.warning({
       position: 'topRight',
-      title: 'Error',
-      message: 'Пусте поле!',
+      message: 'Пусте поле, генеруємо випадкові зображення...',
     });
-    loader.classList.remove('loader');
-    return;
+    hideLoader();
+    hideLoadMoreButton();
+    //return;
   }
 
   e.currentTarget.reset();
 
   //-------------------------------------------GET-------------------------------------------\\
-  //Додав таймаут тому що з 'затримкою' loader виглядає гарніше
+  try {
+    const imagedata = await getImages(
+      userInput,
+      imagesLimitPerPage,
+      currentPage
+    );
 
-  setTimeout(() => {
-    getImages(userInput)
-      .then(data => {
-        if (!data.hits.length) {
-          iziToast.error({
-            position: 'topRight',
-            title: 'Error',
-            message: 'По вашому запиту нічого не знайдено',
-          });
-          loader.classList.remove('loader');
-        } else {
-          render(data.hits);
-        }
-      })
-      .catch(() => {
-        iziToast.error({
-          position: 'topRight',
-          title: 'Error',
-          message: 'Невідома помилка',
-        });
+    if (!imagedata.data.hits.length) {
+      iziToast.error({
+        position: 'topRight',
+        title: 'Error',
+        message: 'По вашому запиту нічого не знайдено',
       });
-  }, 1700);
+      hideLoader();
+      hideLoadMoreButton();
+      //return;
+    }
+    render(imagedata.data.hits);
+    //overallPages = Math.ceil(imagedata.totalHits / imagesLimitPerPage);
+    hideLoader();
+    if (imagedata.data.hits.length < imagesLimitPerPage) {
+      hideLoadMoreButton();
+    } else {
+      showLoadMoreButton();
+    }
+  } catch (error) {
+    iziToast.error({
+      position: 'topRight',
+      title: 'Error',
+      message: 'Невідома помилка',
+    });
+  }
 }
 
-//--------------------------------------------------------------------------------------------\\
+async function handleLoadMore() {
+  currentPage += 1;
+  showLoader();
+  try {
+    const imagedata = await getImages(
+      userInput,
+      imagesLimitPerPage,
+      currentPage
+    );
+    render(imagedata.data.hits);
+    //overallPages = Math.ceil(imagedata.totalHits / imagesLimitPerPage);
+    hideLoader();
+    smoothScroll();
+    if (imagedata.data.hits.length < imagesLimitPerPage) {
+      hideLoadMoreButton();
+      iziToast.warning({
+        position: 'topRight',
+        message: 'Кінець колекції зображень',
+      });
+    } else {
+      showLoadMoreButton();
+    }
+  } catch (error) {
+    iziToast.error({
+      position: 'topRight',
+      title: 'Error',
+      message: 'Невідома помилка',
+    });
+  }
+}

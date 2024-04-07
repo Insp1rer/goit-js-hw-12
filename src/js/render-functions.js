@@ -1,11 +1,9 @@
 //-------------------------------------------IMPORTS-------------------------------------------\\
-
+import { refs } from './misc';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 //-------------------------------------------MARKUP-------------------------------------------\\
-
-const gallery = document.querySelector('.gallery');
 
 export function render(arrOfImages) {
   const renderImages = arrOfImages
@@ -46,7 +44,7 @@ export function render(arrOfImages) {
     )
     .join('');
 
-  gallery.innerHTML = renderImages;
+  refs.gallery.insertAdjacentHTML('beforeend', renderImages);
 
   //-------------------------------------------SIMPLELIGHTBOX-------------------------------------------\\
 
