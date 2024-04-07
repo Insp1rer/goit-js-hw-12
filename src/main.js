@@ -16,7 +16,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import 'izitoast/dist/css/iziToast.min.css';
 
-//-------------------------------------------CONST&LISTENER-------------------------------------------\\
+//---------------------------------------------------------------------------------------------\\
+
 let imagesLimitPerPage = 12;
 let currentPage = 0;
 // let overallPages = 0;
@@ -27,7 +28,7 @@ hideLoader();
 refs.form.addEventListener('submit', handleImageSearch);
 refs.loaderButton.addEventListener('click', handleLoadMore);
 
-//-------------------------------------------LOADER+INPUTCHECK-------------------------------------------\\
+//-----------------------------------------------------------------------------------------------\\
 
 async function handleImageSearch(e) {
   e.preventDefault();
@@ -48,7 +49,8 @@ async function handleImageSearch(e) {
 
   e.currentTarget.reset();
 
-  //-------------------------------------------GET-------------------------------------------\\
+  //------------------------------------------------------------------------------------------\\
+
   try {
     const imagedata = await getImages(
       userInput,
@@ -82,6 +84,8 @@ async function handleImageSearch(e) {
     });
   }
 }
+
+//------------------------------------------------------------------------------------------\\
 
 async function handleLoadMore() {
   currentPage += 1;
